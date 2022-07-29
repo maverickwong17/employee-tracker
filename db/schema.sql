@@ -31,9 +31,3 @@ CREATE TABLE employees(
     REFERENCES employees(id)
     ON DELETE SET NULL
 );
-
-SELECT employees.id, first_name, last_name, roles.title, departments.department, roles.salary, employees.manager_id AS manager 
-FROM employees 
-JOIN roles ON employees.role_id = roles.id
-JOIN departments ON roles.department_id = departments.id
-INNER JOIN employees ON employee.manager_id = employees.id;

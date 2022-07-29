@@ -36,13 +36,72 @@ const allRoles = () => {
 }
 
 const allEmployees = () => {
-    // db.query("SELECT employees.id, first_name, last_name, roles.title, roles.salary, employees.manager_id AS manager FROM employees JOIN roles ON employees.role_id = roles.id", (err, result)=>{
-    db.query("SELECT employees.id, first_name, last_name, roles.title, departments.department roles.salary, employees.manager_id AS manager FROM employees JOIN roles ON employees.role_id = roles.id", (err, result)=>{
+    db.query("SELECT employees.id, employees.first_name, employees.last_name, roles.title, departments.department, roles.salary, CONCAT(m.first_name, ' ', m.last_name) AS manager FROM employees JOIN roles ON employees.role_id = roles.id JOIN departments ON roles.department_id = departments.id LEFT JOIN employees m ON m.id = employees.manager_id", (err, result)=>{
         if(err){
             console.log(err);
         }
         console.table(result)
         viewAll()
+    })
+}
+
+const addDep = () => {
+    inquirer.prompt([
+        {
+        type: "input",
+        message: "What is the name of the department?",
+        name: "depName"
+        }
+    ])
+    .then((response)=>{
+        let depoName = response.depName
+        console.log(depoName)
+        db.query("INSERT INTO departments(department) VALUES (?)", depoName,(err, result)=>{
+            if(err){
+                console.log(err);
+            }
+            console.log("Successfully Added!")
+            viewAll()
+        })
+    })
+}
+
+const addRole = () => {
+    inquirer.prompt([
+        {
+        type: "input",
+        message: "What is the title of the role?",
+        name: "title"
+        },
+        {
+        type: "number",
+        message: "What is the salary of the role?",
+        name: "salary"
+        },
+        {
+        type: "input",
+        message: "What department does the role belong to?",
+        name: "depName"
+        }
+    ])
+    .then((response)=>{
+        const {title, salary, depName} = response
+        let id
+        db.query("SELECT id FROM departments WHERE department = ?", depName, (err, result)=>{
+                if(err){
+                    console.log(err);
+                }
+                console.log(result)
+                id = result
+            })
+            console.log(id, 'this is the id')
+        // db.query("INSERT INTO roles(title, salary, department_id) VALUES (?,?,?)", title, salary, id,(err, result)=>{
+        //     if(err){
+        //         console.log(err);
+        //     }
+        //     console.log("Successfully Added!")
+        //     viewAll()
+        // })
     })
 }
 
@@ -65,13 +124,13 @@ const viewAll = () => {
                 allRoles()
                 break
             case "View All Employees":
-                console.log("c")
+                allEmployees()
                 break
             case "Add Department":
-                console.log("d")
+                addDep()
                 break
             case "Add Role":
-                console.log("e")
+                addRole()
                 break
             case "Add Employee":
                 console.log("f")
@@ -99,9 +158,9 @@ init()
  * 
  * ok all roles - job title, role id, what dep, salary
  * 
- * all employees - emp data, id, first/last name, title, dep, salary, manager
+ * ok all employees - emp data, id, first/last name, title, dep, salary, manager
  * 
- * add dep - name of dep
+ * ok add dep - name of dep
  * 
  * add role - name, salary, dep of the role
  * 
