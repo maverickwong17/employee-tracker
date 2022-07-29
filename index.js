@@ -1,7 +1,8 @@
     // use db query
 const inquirer = require('inquirer')
 const mysql = require('mysql2')
-const cTable = require('console.table')
+const cTable = require('console.table');
+const { type } = require('os');
 // Connect to database
 const db = mysql.createConnection(
   {
@@ -55,7 +56,6 @@ const addDep = () => {
     ])
     .then((response)=>{
         let depoName = response.depName
-        console.log(depoName)
         db.query("INSERT INTO departments(department) VALUES (?)", depoName,(err, result)=>{
             if(err){
                 console.log(err);
@@ -85,25 +85,26 @@ const addRole = () => {
         }
     ])
     .then((response)=>{
-        const {title, salary, depName} = response
-        let id
-        db.query("SELECT id FROM departments WHERE department = ?", depName, (err, result)=>{
-                if(err){
-                    console.log(err);
-                }
-                console.log(result)
-                id = result
-            })
-            console.log(id, 'this is the id')
-        // db.query("INSERT INTO roles(title, salary, department_id) VALUES (?,?,?)", title, salary, id,(err, result)=>{
-        //     if(err){
-        //         console.log(err);
-        //     }
-        //     console.log("Successfully Added!")
-        //     viewAll()
-        // })
-    })
+        let {title, salary, depName} = response
+        let depId
+        db.query("SELECT id FROM departments where department = ?", depName, (err, result)=>{
+            if(err){
+                console.log(err)
+            }
+            console.log(result[0].id)
+            depId = result[0].id
+            db.query("INSERT INTO roles(title,salary,department_id) VALUES (?,?,?)", [title, salary, depId], (err, result)=>{
+                    if(err){
+                        console.log(err)
+                    }
+                    console.log("Successfully Added!")
+                    viewAll()
+                })
+        })
+        })
 }
+
+
 
 const viewAll = () => {
     inquirer.prompt([
@@ -162,7 +163,7 @@ init()
  * 
  * ok add dep - name of dep
  * 
- * add role - name, salary, dep of the role
+ * ok add role - name, salary, dep of the role
  * 
  * add employee - first/last name, role, manager
  * 
