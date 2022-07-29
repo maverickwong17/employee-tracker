@@ -16,6 +16,7 @@ const db = mysql.createConnection(
   console.log(`Connected to the employee_db database.`)
 );
 
+//show all departments
 const allDep = () => {
     db.query("SELECT * FROM departments", (err, result)=>{
         if(err){
@@ -26,6 +27,7 @@ const allDep = () => {
     })
 }
 
+//show all roles
 const allRoles = () => {
     db.query("SELECT roles.title, roles.salary, departments.department FROM roles JOIN departments ON roles.department_id = departments.id", (err, result)=>{
         if(err){
@@ -36,6 +38,7 @@ const allRoles = () => {
     })
 }
 
+//show all employees
 const allEmployees = () => {
     db.query("SELECT employees.id, employees.first_name, employees.last_name, roles.title, departments.department, roles.salary, CONCAT(m.first_name, ' ', m.last_name) AS manager FROM employees JOIN roles ON employees.role_id = roles.id JOIN departments ON roles.department_id = departments.id LEFT JOIN employees m ON m.id = employees.manager_id", (err, result)=>{
         if(err){
@@ -46,6 +49,7 @@ const allEmployees = () => {
     })
 }
 
+//add department
 const addDep = () => {
     inquirer.prompt([
         {
@@ -66,6 +70,7 @@ const addDep = () => {
     })
 }
 
+//department array for role array
 var depArr = []
 function getDep(){
     db.query("SELECT * FROM departments", (err, result) =>{
@@ -79,6 +84,7 @@ function getDep(){
     return depArr
 }
 
+// add role
 const addRole = () => {
     inquirer.prompt([
         {
@@ -117,6 +123,7 @@ const addRole = () => {
         })
 }
 
+// role array for employee update/add
 var  roleArr= []
 function getRoles(){
     db.query("SELECT * FROM roles", (err, result) =>{
@@ -130,6 +137,7 @@ function getRoles(){
     return roleArr
 }
 
+// add employee
 const addEmployee = () => {
     inquirer.prompt([
         {
@@ -173,6 +181,7 @@ const addEmployee = () => {
         })
         })
 }
+
 
 var  empArr= []
 // function getEmployees(){
@@ -229,6 +238,7 @@ const upEmployee = () => {
     })
     }
 
+// Main menu
 const viewAll = () => {
     inquirer.prompt([
         {
@@ -273,7 +283,7 @@ const viewAll = () => {
         })
     }
 
-    
+//Startup
 function init(){
     viewAll()
 }
