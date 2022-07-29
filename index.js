@@ -175,7 +175,8 @@ const addEmployee = () => {
 }
 
 var  empArr= []
-function getEmployees(){
+// function getEmployees(){
+const upEmployee = () => {
     db.query("SELECT * FROM employees", (err, result) =>{
         if(err){
             console.log(err)
@@ -184,29 +185,49 @@ function getEmployees(){
             let name = result[i].first_name + " " + result[i].last_name
             empArr.push(name)
         }
+        inquirer.prompt([
+            {
+                type: 'list',
+                message: "Which employee's role do you want to update?",
+                choices: empArr,
+                name: 'employee',
+            },
+            {
+                type: "list",
+                message: "What is the new role of the employee?",
+                choices: roleArr,
+                name: "role"
+            },
+        ])
+        .then((response) =>{
+            const {employee, role} = response
+            let nameArr= employee.split(' ')
+            console.log(nameArr)
+            first = nameArr[0]
+            db.query("SELECT id FROM employees where first_name = ?",first,(err, result) =>{
+                if(err){
+                    console.log(err)
+                }
+                console.log(result, 'emp result')
+                employeeID = result[0].id
+                db.query("SELECT id FROM roles where title = ?",role,(err, result) =>{
+                    if(err){
+                        console.log(err)
+                    }
+                    console.log(result, 'title res')
+                    roleID = result[0].id
+                    db.query("UPDATE employees SET role_id = ? WHERE id = ?",[roleID, employeeID],(err, result) =>{
+                        if(err){
+                            console.log(err)
+                        }
+                        console.log(result)
+                    })
+                })
+            })
+                viewAll()
+                })
     })
-    console.log(empArr)
-    return empArr
-}
-const upEmployee = () => {
-    inquirer.prompt([
-        {
-        type: 'list',
-        message: "Which employee's role do you want to update",
-        choices: empArr,
-        name: 'employee',
-        },
-        {
-        type: "list",
-        message: "What is the new role of the employee?",
-        choices: roleArr,
-        name: "role"
-        },
-    ])
-    .then((response) =>{
-        console.log(response)
-    })
-}
+    }
 
 const viewAll = () => {
     inquirer.prompt([
@@ -241,7 +262,8 @@ const viewAll = () => {
                 addEmployee()
                 break
             case "Update Employee Role":
-                getEmployees()
+                // getEmployees()
+                getRoles()
                 upEmployee()
                 break
             default:
