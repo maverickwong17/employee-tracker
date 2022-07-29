@@ -66,6 +66,19 @@ const addDep = () => {
     })
 }
 
+var depArr = []
+function getDep(){
+    db.query("SELECT * FROM departments", (err, result) =>{
+        if(err){
+            console.log(err)
+        }
+        for(let i = 0; i < result.length ; i++){
+            depArr.push(result[i].department)
+        }
+    })
+    return depArr
+}
+
 const addRole = () => {
     inquirer.prompt([
         {
@@ -79,8 +92,9 @@ const addRole = () => {
         name: "salary"
         },
         {
-        type: "input",
+        type: "list",
         message: "What department does the role belong to?",
+        choices: depArr,
         name: "depName"
         }
     ])
@@ -91,7 +105,6 @@ const addRole = () => {
             if(err){
                 console.log(err)
             }
-            console.log(result[0].id)
             depId = result[0].id
             db.query("INSERT INTO roles(title,salary,department_id) VALUES (?,?,?)", [title, salary, depId], (err, result)=>{
                     if(err){
@@ -104,7 +117,62 @@ const addRole = () => {
         })
 }
 
+var  roleArr= []
+function getRoles(){
+    db.query("SELECT * FROM roles", (err, result) =>{
+        if(err){
+            console.log(err)
+        }
+        for(let i = 0; i < result.length ; i++){
+            roleArr.push(result[i].title)
+        }
+    })
+    return roleArr
+}
 
+const addEmployee = () => {
+    inquirer.prompt([
+        {
+        type: "input",
+        message: "What is the first name of the employee?",
+        name: "firstName"
+        },
+        {
+        type: "input",
+        message: "What is the last name of the employee?",
+        name: "lastName"
+        },
+        {
+        type: "list",
+        message: "What is the role of the employee?",
+        choices: roleArr,
+        name: "role"
+        },
+        {
+        type: "input",
+        message: "Does this employee have a manager?(leave blank if no manager)",
+        name: "manager"
+        }
+    ])
+    .then((response)=>{
+        console.log(response)
+        let {firstName, lastName, role, manager} = response
+        if (manager === ''){manager = null}
+        db.query("SELECT id FROM roles where title = ?", role, (err, result)=>{
+            if(err){
+                console.log(err)
+            }
+            let roleId = result[0].id
+            db.query("INSERT INTO employees(first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)", [firstName,lastName, roleId, manager], (err, result)=>{
+                if(err){
+                    console.log(err)
+                }
+                console.log("Successfully Added!")
+                viewAll()
+            })
+        })
+        })
+}
 
 const viewAll = () => {
     inquirer.prompt([
@@ -131,10 +199,12 @@ const viewAll = () => {
                 addDep()
                 break
             case "Add Role":
+                getDep()
                 addRole()
                 break
             case "Add Employee":
-                console.log("f")
+                getRoles()
+                addEmployee()
                 break
             case "Update Employee Role":
                 console.log("g")
