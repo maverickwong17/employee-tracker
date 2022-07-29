@@ -13,7 +13,7 @@ const db = mysql.createConnection(
     password: 'password',
     database: 'employee_db'
   },
-  console.log(`Connected to the books_db database.`)
+  console.log(`Connected to the employee_db database.`)
 );
 
 const allDep = () => {
@@ -174,6 +174,40 @@ const addEmployee = () => {
         })
 }
 
+var  empArr= []
+function getEmployees(){
+    db.query("SELECT * FROM employees", (err, result) =>{
+        if(err){
+            console.log(err)
+        }
+        for(let i = 0; i < result.length ; i++){
+            let name = result[i].first_name + " " + result[i].last_name
+            empArr.push(name)
+        }
+    })
+    console.log(empArr)
+    return empArr
+}
+const upEmployee = () => {
+    inquirer.prompt([
+        {
+        type: 'list',
+        message: "Which employee's role do you want to update",
+        choices: empArr,
+        name: 'employee',
+        },
+        {
+        type: "list",
+        message: "What is the new role of the employee?",
+        choices: roleArr,
+        name: "role"
+        },
+    ])
+    .then((response) =>{
+        console.log(response)
+    })
+}
+
 const viewAll = () => {
     inquirer.prompt([
         {
@@ -207,7 +241,8 @@ const viewAll = () => {
                 addEmployee()
                 break
             case "Update Employee Role":
-                console.log("g")
+                getEmployees()
+                upEmployee()
                 break
             default:
                 console.log("exit")
@@ -235,7 +270,7 @@ init()
  * 
  * ok add role - name, salary, dep of the role
  * 
- * add employee - first/last name, role, manager
+ * ok add employee - first/last name, role, manager
  * 
  * update employee role - select employee, update w/ new role
  * 
